@@ -1,9 +1,3 @@
-"""  
-Copyright (c) 2019-present NAVER Corp.
-MIT License
-"""
-
-# -*- coding: utf-8 -*-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -28,11 +22,11 @@ class double_conv(nn.Module):
 
 
 class CRAFT(nn.Module):
-    def __init__(self, pretrained=False, freeze=False):
+    def __init__(self, freeze=False):
         super(CRAFT, self).__init__()
 
         """ Base network """
-        self.basenet = vgg16_bn(pretrained, freeze)
+        self.basenet = vgg16_bn(freeze=freeze)
 
         """ U network """
         self.upconv1 = double_conv(1024, 512, 256)
@@ -54,7 +48,7 @@ class CRAFT(nn.Module):
         init_weights(self.upconv3.modules())
         init_weights(self.upconv4.modules())
         init_weights(self.conv_cls.modules())
-        
+
     def forward(self, x):
         """ Base network """
         sources = self.basenet(x)
@@ -80,6 +74,6 @@ class CRAFT(nn.Module):
         return y.permute(0,2,3,1), feature
 
 if __name__ == '__main__':
-    model = CRAFT(pretrained=True).cuda()
+    model = CRAFT().cuda()
     output, _ = model(torch.randn(1, 3, 768, 768).cuda())
     print(output.shape)
